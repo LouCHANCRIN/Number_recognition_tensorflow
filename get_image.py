@@ -24,11 +24,16 @@ class data:
         nb_line = st.unpack('>I', image.read(4))[0]
         nb_col = st.unpack('>I', image.read(4))[0]
         tot_size = nb_image * nb_line * nb_col
-        ret_image = (255.0 - np.asarray(st.unpack('>' + 'B' *
+        ret_image = (np.asarray(st.unpack('>' + 'B' *
             tot_size, image.read(tot_size))).reshape((nb_image, nb_line, nb_col)))
         ret_image = np.float32(ret_image)
         label = open(filename['labels'], 'rb')
         magic = st.unpack('>I', label.read(4))
         nb_image = st.unpack('>I', label.read(4))[0]
-        ret_label = np.asarray(st.unpack('>' + 'B' * nb_image, label.read(nb_image)))
+        label_value = np.asarray(st.unpack('>' + 'B' * nb_image, label.read(nb_image)))
+        ret_label = [0] * nb_image
+        for i in range(0, nb_image):
+            ret = [0] * 10
+            ret[label_value[i]] = 1
+            ret_label[i] = ret
         return (ret_image / 255, ret_label)
