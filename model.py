@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 
-def cost_function():
-    return(0)
-
 def conv_2d(X, W):
     return (tf.nn.conv2d(X, W, strides=[1,1,1,1], padding='SAME'))
 

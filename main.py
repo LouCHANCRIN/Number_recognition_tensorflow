@@ -20,7 +20,7 @@ def plot(train_loss, test_loss, train_accuracy, test_accuracy):
     plt.ylabel('loss')
     plt.show()
 
-    plt.plot(range(len(train_accuracy)), train_loss, 'b', label='Train accuracy')
+    plt.plot(range(len(train_accuracy)), train_accuracy, 'b', label='Train accuracy')
     plt.plot(range(len(test_accuracy)), test_accuracy, 'r', label='Test accuracy')
     plt.title('Training(blue) and test(red) accuracy')
     plt.xlabel('epoch')
@@ -28,7 +28,7 @@ def plot(train_loss, test_loss, train_accuracy, test_accuracy):
     plt.show()
 
 def main():
-    alpha = 0.001
+    alpha = 0.004
     nb_chanel = 1
     nb_class = 10
     batch_size = 128
@@ -39,16 +39,17 @@ def main():
             [np.shape(data.validation_data)[0], line, col, 1])
     x = tf.placeholder("float", [None, 28, 28, 1])
     y = tf.placeholder("float", [None, 10])
-    weight = {'conv1': tf.Variable(tf.random_normal([3,3,1,32])),
-              'conv2': tf.Variable(tf.random_normal([3,3,32,64])),
-              'conv3': tf.Variable(tf.random_normal([3,3,64,128])),
-              'fc': tf.Variable(tf.random_normal([4*4*128,128])),
-              'output': tf.Variable(tf.random_normal([128, nb_class]))}
-    bias = {'conv1': tf.Variable(tf.random_normal([32])),
-            'conv2': tf.Variable(tf.random_normal([64])),
-            'conv3': tf.Variable(tf.random_normal([128])),
-            'fc': tf.Variable(tf.random_normal([128])),
-            'output': tf.Variable(tf.random_normal([nb_class]))}
+    weight = {'conv1': tf.Variable(tf.random_normal([3,3,1,32], seed=3)),
+              'conv2': tf.Variable(tf.random_normal([3,3,32,64], seed=1)),
+              'conv3': tf.Variable(tf.random_normal([3,3,64,128], seed=4)),
+              'fc': tf.Variable(tf.random_normal([4*4*128,128], seed=5)),
+              'output': tf.Variable(tf.random_normal([128, nb_class], seed=4))}
+    bias = {'conv1': tf.Variable(tf.random_normal([32], seed=3)),
+            'conv2': tf.Variable(tf.random_normal([64], seed=2)),
+            'conv3': tf.Variable(tf.random_normal([128], seed=2)),
+            'fc': tf.Variable(tf.random_normal([128], seed=9)),
+            'output': tf.Variable(tf.random_normal([nb_class], seed=5))}
+
     pred = mod.model(x, weight, bias)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate=alpha).minimize(cost)
@@ -62,20 +63,25 @@ def main():
         test_loss = []
         train_accuracy = []
         test_accuracy = []
-        for e in range(0, 20):
-            #for i in range(0, int(nb_image / batch_size)):
-            for i in range(0, 5):
+        for e in range(0, 25):
+            for i in range(0, int(nb_image / batch_size)):
+            #for i in range(0, 50):
                 batch_x = data.train_data[i*batch_size:min((i+1)*batch_size,len(data.train_data))]
                 batch_y = data.train_label[i*batch_size:min((i+1)*batch_size,len(data.train_label))]
-                opt = sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
+                sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
             TmpLoss, TmpAcc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y})
             TmpTestLoss, TmpTestAcc = sess.run([cost, accuracy],
                     feed_dict={x: data.test_data, y: data.test_label})
-            print("Epoch :", e, ", loss =", TmpLoss, ", acc =", TmpAcc)
+            print("Epoch :", e, ", Loss :", TmpLoss, ", Train acc :",
+                    TmpAcc, ", Test acc :", TmpTestAcc)
             train_loss.append(TmpLoss)
             test_loss.append(TmpTestLoss)
             train_accuracy.append(TmpAcc)
             test_accuracy.append(TmpTestAcc)
+        Val_Loss, Val_Acc = sess.run([cost, accuracy],
+                feed_dict={x: data.validation_data, y: data.validation_label})
+        print("Validation loss :", Val_Loss)
+        print("Validation acc  :", Val_Acc)
     plot(train_loss, test_loss, train_accuracy, test_accuracy)
 
 if __name__ == "__main__":
