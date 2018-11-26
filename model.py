@@ -16,6 +16,7 @@ def tanh(data, bias):
 
 def model(data, weight, bias):
     data = tf.reshape(data, [-1,28,28,1])
+
     conv1 = conv_2d(data, weight['conv1'])
     conv1 = relu(conv1, bias['conv1'])
     conv1 = max_pool(conv1)
@@ -30,8 +31,7 @@ def model(data, weight, bias):
 
     shape = conv3.get_shape().as_list()
     fc = tf.reshape(conv3, [-1,shape[1]*shape[2]*shape[3]])
-    fc = tf.nn.relu(tf.add(tf.matmul(fc, weight['fc']), bias['fc']))
-
+    fc = tf.nn.relu(tf.add(tf.matmul(fc, weight['fc1']), bias['fc1']))
     output = tf.add(tf.matmul(fc, weight['output']), bias['output'])
 
     return (output)

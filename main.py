@@ -9,7 +9,7 @@ train_im = 'mnist/train_image'
 train_lab = 'mnist/train_label'
 test_im = 'mnist/t10_image'
 test_lab = 'mnist/t10_label'
-split = 0.8 # % of data to train, rest is validation data
+split = 0.8 #(0.8) % of data to train, rest is validation data
 data = get.data(train_im, train_lab, test_im, test_lab, split)
 
 def plot(train_loss, test_loss, train_accuracy, test_accuracy):
@@ -27,8 +27,24 @@ def plot(train_loss, test_loss, train_accuracy, test_accuracy):
     plt.ylabel('accuracy')
     plt.show()
 
+def my_weight_and_bias(nb_class):
+    w = {'conv1': tf.Variable(tf.random_normal([3,3,1,32], seed=3)), #3
+         'conv2': tf.Variable(tf.random_normal([3,3,32,64], seed=1)), #1
+         'conv3': tf.Variable(tf.random_normal([3,3,64,128], seed=4)), #4
+         'fc1': tf.Variable(tf.random_normal([4*4*128,128], seed=5)), #5
+         'fc2': tf.Variable(tf.random_normal([128,128], seed=5)), #5
+         'output': tf.Variable(tf.random_normal([128, nb_class], seed=4))} #4
+    b = {'conv1': tf.Variable(tf.random_normal([32], seed=3)), #3
+         'conv2': tf.Variable(tf.random_normal([64], seed=2)), #2
+         'conv3': tf.Variable(tf.random_normal([128], seed=2)), #2
+         'fc1': tf.Variable(tf.random_normal([128], seed=9)), #9
+         'fc2': tf.Variable(tf.random_normal([128], seed=9)), #9
+         'output': tf.Variable(tf.random_normal([nb_class], seed=5))} #5
+    return (w, b)
+
 def main():
-    alpha = 0.004
+    alpha = 0.004 #0.004
+    num_iters = 23 #23
     nb_chanel = 1
     nb_class = 10
     batch_size = 128
@@ -39,16 +55,8 @@ def main():
             [np.shape(data.validation_data)[0], line, col, 1])
     x = tf.placeholder("float", [None, 28, 28, 1])
     y = tf.placeholder("float", [None, 10])
-    weight = {'conv1': tf.Variable(tf.random_normal([3,3,1,32], seed=3)),
-              'conv2': tf.Variable(tf.random_normal([3,3,32,64], seed=1)),
-              'conv3': tf.Variable(tf.random_normal([3,3,64,128], seed=4)),
-              'fc': tf.Variable(tf.random_normal([4*4*128,128], seed=5)),
-              'output': tf.Variable(tf.random_normal([128, nb_class], seed=4))}
-    bias = {'conv1': tf.Variable(tf.random_normal([32], seed=3)),
-            'conv2': tf.Variable(tf.random_normal([64], seed=2)),
-            'conv3': tf.Variable(tf.random_normal([128], seed=2)),
-            'fc': tf.Variable(tf.random_normal([128], seed=9)),
-            'output': tf.Variable(tf.random_normal([nb_class], seed=5))}
+
+    weight, bias = my_weight_and_bias(nb_class) 
 
     pred = mod.model(x, weight, bias)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=y))
@@ -63,11 +71,12 @@ def main():
         test_loss = []
         train_accuracy = []
         test_accuracy = []
-        for e in range(0, 25):
+        for e in range(0, num_iters):
             for i in range(0, int(nb_image / batch_size)):
-            #for i in range(0, 50):
-                batch_x = data.train_data[i*batch_size:min((i+1)*batch_size,len(data.train_data))]
-                batch_y = data.train_label[i*batch_size:min((i+1)*batch_size,len(data.train_label))]
+                batch_x = data.train_data[i*batch_size:min((i+1)*batch_size,
+                    len(data.train_data))]
+                batch_y = data.train_label[i*batch_size:min((i+1)*batch_size,
+                    len(data.train_label))]
                 sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
             TmpLoss, TmpAcc = sess.run([cost, accuracy], feed_dict={x: batch_x, y: batch_y})
             TmpTestLoss, TmpTestAcc = sess.run([cost, accuracy],
@@ -81,8 +90,15 @@ def main():
         Val_Loss, Val_Acc = sess.run([cost, accuracy],
                 feed_dict={x: data.validation_data, y: data.validation_label})
         print("Validation loss :", Val_Loss)
-        print("Validation acc  :", Val_Acc)
+        print("Validation acc  :", Val_Acc * 100)
     plot(train_loss, test_loss, train_accuracy, test_accuracy)
+    x = 0
+    y = 0
+    for i in range(0, num_iters):
+        if (test_loss[i] > x):
+            x = test_accuracy[i]
+            y = i
+    print("max :", x, "(", y, ")")
 
 if __name__ == "__main__":
     main()
