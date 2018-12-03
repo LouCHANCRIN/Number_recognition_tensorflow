@@ -1,16 +1,17 @@
 NUMBER RECOGNITION
 =
 
-About Number Recognition :
+ABOUT NUMBER RECOGNITION :
 =
 
 * Number Recognition goal is to recognize handwritten digit.
+* In this project I am using tensorflow
 
 ABOUT THE CODE :
 =
 
-* using convolutional neural network
-* data is splitted in 3. 48000 images for training set, 12000 for validation set and 10000 for test set.
+* I am using a convolutional neural network
+* Data is splitted in 3. 48000 images for training set, 12000 for validation set and 10000 for test set.
 
 DATA :
 =
@@ -22,10 +23,10 @@ DATA :
 REQUIREMENTS :
 =
 
-* python3.7
-* tensorflow
-* numpy
-* matplotlib
+* Python3.7
+* Tensorflow
+* Numpy
+* Matplotlib
 
 USAGE :
 =
@@ -35,4 +36,6 @@ USAGE :
 TO DO :
 =
 
-* random batch
+* Random batch
+* More metrics
+* Script to draw and test my model on my own handwritten digit
