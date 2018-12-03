@@ -17,7 +17,7 @@ DATA :
 
 * MNIST data
 * 70000 images of handwritten digit
-* format is 28x28x1
+* images format : 28x28x1
 
 REQUIREMENTS :
 =
