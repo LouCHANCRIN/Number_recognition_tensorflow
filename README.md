@@ -1,5 +1,5 @@
-#NUMBER RECOGNITION
-
+NUMBER RECOGNITION
+===
 ##About Number Recognition :
 
 * Number Recognition goal is to recognize handwritten digit.
