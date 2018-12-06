@@ -40,6 +40,8 @@
 
 ## To do :
 
+* Data augmentation
+
 * Save the model
 
 * Random batch
