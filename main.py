@@ -41,22 +41,8 @@ def my_weight_and_bias(nb_class):
          'output': tf.Variable(tf.random_normal([nb_class], seed=5))} #5
     return (w, b)
 
-def LeNet5_weight_and_bias(nb_class):
-    w = {'conv1': tf.Variable(tf.random_normal([3,3,1,32], seed=3)), #3
-         'conv2': tf.Variable(tf.random_normal([3,3,32,64], seed=1)), #1
-         'fc1': tf.Variable(tf.random_normal([7*7*64,64], seed=5)), #5
-         'fc2': tf.Variable(tf.random_normal([64,64], seed=5)), #5
-         'output': tf.Variable(tf.random_normal([64, nb_class], seed=4))} #4
-    b = {'conv1': tf.Variable(tf.random_normal([32], seed=3)), #3
-         'conv2': tf.Variable(tf.random_normal([64], seed=2)), #2
-         'fc1': tf.Variable(tf.random_normal([64], seed=9)), #9
-         'fc2': tf.Variable(tf.random_normal([64], seed=9)), #9
-         'output': tf.Variable(tf.random_normal([nb_class], seed=5))} #5
-    return (w, b)
-
 def main():
     alpha = 0.004 #0.004
-    alpha = 0.005 #0.008
     num_epoch = 50 #23
     nb_chanel = 1
     nb_class = 10
@@ -66,13 +52,12 @@ def main():
     data.test_data = np.reshape(data.test_data, [np.shape(data.test_data)[0], line, col, 1])
     data.validation_data = np.reshape(data.validation_data,
             [np.shape(data.validation_data)[0], line, col, 1])
-    x = tf.placeholder("float", [None, 28, 28, 1])
-    y = tf.placeholder("float", [None, 10])
+    x = tf.placeholder("float", [None, line, col, 1])
+    y = tf.placeholder("float", [None, nb_class])
 
-    #weight, bias = my_weight_and_bias(nb_class) 
-    weight, bias = LeNet5_weight_and_bias(nb_class) 
+    weight, bias = my_weight_and_bias(nb_class) # WEIGHT
 
-    pred = mod.LeNet5(x, weight, bias)
+    pred = mod.model(x, weight, bias) # MODEL
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=y))
     optimizer = tf.train.AdamOptimizer(learning_rate=alpha).minimize(cost)
     correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
